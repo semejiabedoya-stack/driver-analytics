@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(34, 197, 94, .14), transparent 34rem),
+    linear-gradient(180deg, #080b12 0%, #0d1320 45%, #080b12 100%);
+  color: #f8fafc;
+  font-feature-settings: "tnum";
+}
+
+button, input, select, textarea {
+  font: inherit;
+}
+
+.leaflet-container {
+  min-height: 420px;
+  width: 100%;
+  border-radius: 16px;
+  background: #111827;
+}
