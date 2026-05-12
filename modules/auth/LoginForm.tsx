@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -17,13 +18,20 @@ const schema = z.object({
 type LoginValues = z.infer<typeof schema>;
 
 export function LoginForm() {
+  const router = useRouter();
   const [message, setMessage] = useState("");
   const form = useForm<LoginValues>({ resolver: zodResolver(schema), defaultValues: { email: "", password: "" } });
 
   async function onSubmit(values: LoginValues) {
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithPassword(values);
-    setMessage(error ? error.message : "Sesion iniciada correctamente.");
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+    setMessage("Sesion iniciada correctamente.");
+    router.replace("/");
+    router.refresh();
   }
 
   return (
