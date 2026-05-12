@@ -1,13 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Flag, MapPin, Receipt, Route } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { Field } from "@/components/ui/Field";
+import { NumericField } from "@/components/ui/NumericField";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useAppStore } from "@/store/appStore";
 import type { Platform, Trip } from "@/types/domain";
@@ -82,12 +82,18 @@ export function TripForm({ platform, accent }: TripFormProps) {
   async function handleFinish() {
     if (!currentTrip?.horaInicio || !currentTrip.gpsInicio) return;
     const gps = await getCurrentPosition();
+    const formValues = form.getValues();
     const horaInicio = currentTrip.horaInicio;
     const gpsInicio = currentTrip.gpsInicio;
     const draft = {
       ...currentTrip,
+      valorViaje: formValues.valorViaje,
+      propina: formValues.hasTip ? formValues.propina : 0,
+      libreComision: formValues.libreComision,
       horaFinal: new Date().toISOString(),
-      kmFinal: Number(form.getValues("kmFinal") ?? 0),
+      kmInicial: Number(formValues.kmInicial ?? currentTrip.kmInicial ?? 0),
+      kmRecogida: Number(formValues.kmRecogida ?? currentTrip.kmRecogida ?? currentTrip.kmInicial ?? 0),
+      kmFinal: Number(formValues.kmFinal ?? 0),
       gpsFinal: gps
     };
     const metrics = calculateTripMetrics(draft, platform);
@@ -130,11 +136,33 @@ export function TripForm({ platform, accent }: TripFormProps) {
           <span className="rounded-full px-3 py-1 text-sm font-black text-white" style={{ backgroundColor: accent }}>{formatCurrency(preview.gananciaNeta)}</span>
         </div>
         <div className="grid gap-3 sm:grid-cols-3">
-          <Field label="Valor viaje" type="number" inputMode="decimal" min="0" step="100" {...form.register("valorViaje")} />
-          <Field label="Km inicial" type="number" inputMode="decimal" min="0" step="0.1" {...form.register("kmInicial")} />
-          <Field label="Km recogida" type="number" inputMode="decimal" min="0" step="0.1" {...form.register("kmRecogida")} />
-          <Field label="Km final" type="number" inputMode="decimal" min="0" step="0.1" {...form.register("kmFinal")} />
-          {values.hasTip ? <Field label="Propina" type="number" inputMode="decimal" min="0" step="100" {...form.register("propina")} /> : null}
+          <Controller
+            control={form.control}
+            name="valorViaje"
+            render={({ field }) => <NumericField label="Valor viaje" mode="money" value={field.value} onValueChange={field.onChange} placeholder="Puedes ponerlo al final" />}
+          />
+          <Controller
+            control={form.control}
+            name="kmInicial"
+            render={({ field }) => <NumericField label="Km inicial" value={field.value} onValueChange={field.onChange} />}
+          />
+          <Controller
+            control={form.control}
+            name="kmRecogida"
+            render={({ field }) => <NumericField label="Km recogida" value={field.value} onValueChange={field.onChange} disabled={step === "ready"} />}
+          />
+          <Controller
+            control={form.control}
+            name="kmFinal"
+            render={({ field }) => <NumericField label="Km final" value={field.value} onValueChange={field.onChange} disabled={step !== "picked"} />}
+          />
+          {values.hasTip ? (
+            <Controller
+              control={form.control}
+              name="propina"
+              render={({ field }) => <NumericField label="Propina" mode="money" value={field.value} onValueChange={field.onChange} />}
+            />
+          ) : null}
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="flex min-h-14 items-center justify-between rounded-2xl border border-white/10 bg-slate-950/50 px-4 text-sm font-semibold">
@@ -160,10 +188,11 @@ export function TripForm({ platform, accent }: TripFormProps) {
         </div>
         <div className="grid gap-2 rounded-2xl bg-slate-950/60 p-4 text-sm text-slate-300 sm:grid-cols-3">
           <span><Route className="inline" size={16} /> Comision {formatCurrency(preview.comision)}</span>
-          <span>Impuestos {formatCurrency(preview.impuestos)}</span>
+          <span>Impuestos sobre comision {formatCurrency(preview.impuestos)}</span>
           <span>Neto estimado {formatCurrency(preview.gananciaNeta)}</span>
         </div>
       </form>
     </Card>
   );
 }
+
