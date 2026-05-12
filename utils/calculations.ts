@@ -42,7 +42,7 @@ export function calculateTripMetrics(draft: TripDraft, platform: Platform): Trip
   const tiempoTotalMs = Math.max(0, differenceInMilliseconds(end, start));
   const tiempoEsperaMs = Math.max(0, differenceInMilliseconds(pickup, start));
   const comision = draft.libreComision ? 0 : draft.valorViaje * platform.commissionRate;
-  const impuestos = draft.libreComision ? 0 : draft.valorViaje * platform.taxRate;
+  const impuestos = draft.libreComision ? 0 : comision * platform.taxRate;
   const gananciaNeta = draft.valorViaje - comision - impuestos + draft.propina;
   const hours = tiempoTotalMs / 3_600_000;
 
