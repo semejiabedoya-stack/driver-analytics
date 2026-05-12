@@ -82,6 +82,8 @@ export function TripForm({ platform, accent }: TripFormProps) {
   async function handleFinish() {
     if (!currentTrip?.horaInicio || !currentTrip.gpsInicio) return;
     const gps = await getCurrentPosition();
+    const horaInicio = currentTrip.horaInicio;
+    const gpsInicio = currentTrip.gpsInicio;
     const draft = {
       ...currentTrip,
       horaFinal: new Date().toISOString(),
@@ -97,16 +99,16 @@ export function TripForm({ platform, accent }: TripFormProps) {
       comision: metrics.comision,
       impuestos: metrics.impuestos,
       libreComision: draft.libreComision,
-      horaInicio: draft.horaInicio,
-      horaRecogida: draft.horaRecogida ?? draft.horaInicio,
+      horaInicio,
+      horaRecogida: draft.horaRecogida ?? horaInicio,
       horaFinal: draft.horaFinal,
       kmInicial: draft.kmInicial ?? 0,
       kmRecogida: draft.kmRecogida ?? draft.kmInicial ?? 0,
       kmFinal: draft.kmFinal,
-      latitudInicio: draft.gpsInicio.latitude,
-      longitudInicio: draft.gpsInicio.longitude,
-      latitudRecogida: draft.gpsRecogida?.latitude ?? draft.gpsInicio.latitude,
-      longitudRecogida: draft.gpsRecogida?.longitude ?? draft.gpsInicio.longitude,
+      latitudInicio: gpsInicio.latitude,
+      longitudInicio: gpsInicio.longitude,
+      latitudRecogida: draft.gpsRecogida?.latitude ?? gpsInicio.latitude,
+      longitudRecogida: draft.gpsRecogida?.longitude ?? gpsInicio.longitude,
       latitudFinal: draft.gpsFinal.latitude,
       longitudFinal: draft.gpsFinal.longitude,
       gananciaNeta: metrics.gananciaNeta,
