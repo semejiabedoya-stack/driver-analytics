@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Flag, MapPin, Receipt, Route } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { NumericField } from "@/components/ui/NumericField";
+import { NumericField } from "@/components/ui/Field";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useAppStore } from "@/store/appStore";
 import type { Platform, Trip } from "@/types/domain";
@@ -195,4 +195,3 @@ export function TripForm({ platform, accent }: TripFormProps) {
     </Card>
   );
 }
-
